@@ -14,8 +14,11 @@ CSRF_REGEX = re.compile(r'"csrfToken":"([^"]+)"')
 
 
 def fetch_jobs(config: WorkdaySource) -> List[JobPosting]:
-    client_headers = {"User-Agent": "job-discord-bot/1.1"}
-    with httpx.Client(timeout=20, headers=client_headers) as client:
+    client_headers = {
+        "User-Agent": "job-discord-bot/1.2",
+        "Accept": "text/html,application/xhtml+xml",
+    }
+    with httpx.Client(timeout=20, headers=client_headers, follow_redirects=True) as client:
         token = _bootstrap_session(client, config)
         payload = {
             "appliedFacets": config.applied_facets or {},
@@ -23,7 +26,10 @@ def fetch_jobs(config: WorkdaySource) -> List[JobPosting]:
             "offset": 0,
             "searchText": config.search_text or "",
         }
-        headers = {}
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
         if token:
             headers["wd-csrf-token"] = token
         try:
@@ -69,11 +75,13 @@ def _bootstrap_session(client: httpx.Client, config: WorkdaySource) -> str | Non
     except httpx.HTTPError as exc:
         print(f"[workday] Bootstrap failed for {config.tenant}: {exc}")
         return None
+    cookie_token = resp.cookies.get("CALYPSO_CSRF_TOKEN")
+    if cookie_token:
+        return cookie_token
     match = CSRF_REGEX.search(resp.text)
     if match:
         return match.group(1)
-    cookie_token = resp.cookies.get("wd-csrf-token")
-    return cookie_token
+    return None
 
 
 def _parse_posted_on(value: str | None) -> datetime | None:
