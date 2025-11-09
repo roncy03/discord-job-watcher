@@ -48,7 +48,9 @@ def main() -> int:
     load_dotenv()
     settings = load_settings(args.config)
     store = DedupeStore(args.store)
-    jobs = scrape_all(settings.sources.greenhouse, settings.sources.lever)
+    jobs = scrape_all(
+        settings.sources.greenhouse, settings.sources.lever, settings.sources.workday
+    )
     print(f"Fetched {len(jobs)} postings from configured sources")
 
     new_jobs = [job for job in jobs if not store.has(job.uid)]

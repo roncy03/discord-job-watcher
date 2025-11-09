@@ -2,15 +2,24 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import yaml
 from pydantic import BaseModel, Field, HttpUrl, ValidationError
 
 
+class WorkdaySource(BaseModel):
+    tenant: str
+    site: str
+    host: str
+    limit: int = Field(default=50, ge=1, le=200)
+    search_text: str = ""
+
+
 class SourceConfig(BaseModel):
     greenhouse: List[str] = Field(default_factory=list)
     lever: List[str] = Field(default_factory=list)
+    workday: List[WorkdaySource] = Field(default_factory=list)
 
 
 class Settings(BaseModel):

@@ -10,6 +10,7 @@ Run `python scripts/verify_vendor_map.py` to refresh the Status column. The tabl
 | DoorDash | Greenhouse | `https://boards-api.greenhouse.io/v1/boards/doordashusa/jobs` | ✅ 546 jobs returned |
 | Spotify | Lever | `https://api.lever.co/v0/postings/spotify?mode=json` | ✅ 99 jobs returned |
 | Medium | Lever | `https://api.lever.co/v0/postings/medium?mode=json` | ⚠️ API reachable but currently 0 jobs |
+| Walmart | Workday | `https://walmart.wd5.myworkdayjobs.com/wday/cxs/walmart/WalmartExternal/jobs` | ✅ JSON API used in bot (search filter configurable) |
 | Apple | Custom Site | `https://jobs.apple.com/en-us/search?team=software-and-services-SFTWR` | ✅ Loads HTML (needs scraper) |
 | Microsoft | Custom Site | `https://jobs.careers.microsoft.com/global/en/search?q=software` | ✅ Loads HTML |
 | Alphabet / Google | Custom Site | `https://careers.google.com/jobs/results/?q=software` | ⚠️ HTTP 301 redirect (follow manually) |

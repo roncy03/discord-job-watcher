@@ -7,3 +7,9 @@ greenhouse:
   - doordashusa
 lever:
   - spotify
+workday:
+  - tenant: walmart
+    site: WalmartExternal
+    host: walmart.wd5.myworkdayjobs.com
+    limit: 50
+    search_text: "software"

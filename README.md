@@ -4,6 +4,7 @@ Lightweight Python bot that polls Greenhouse + Lever job boards, deduplicates po
 
 ## Features
 - Config-driven list of Greenhouse and Lever handles (`config/sources.yaml`).
+- Workday support (`workday` block in `config/sources.yaml`) so you can track tenants like Walmart that expose a Workday JSON API.
 - Vendor map (`docs/vendor_map.md`) outlining which large companies use Greenhouse, Lever, Workday, Amazon Jobs, or Ashby along with public endpoints.
 - Persistent dedupe store (`data/sent_jobs.json`) committed back to the repo so posted jobs aren’t repeated.
 - Discord notifier with embeds showing title, company, location, source, and timestamp.
@@ -15,12 +16,13 @@ Lightweight Python bot that polls Greenhouse + Lever job boards, deduplicates po
    ```bash
    pip install -r requirements.txt
    ```
-2. **Configure sources** – edit `config/sources.yaml` with the Greenhouse/Lever handles you care about.
+2. **Configure sources** – edit `config/sources.yaml` with the Greenhouse/Lever handles you care about. Add Workday entries under the `workday` list; each entry needs a tenant, site, and host (see the Walmart example).
 3. **Set Discord webhook(s)** – copy `.env.example` to `.env` (for local runs) and set at least one of:
    - `DISCORD_WEBHOOK_URL_SOFTWARE` – channel for software-engineering roles.
    - `DISCORD_WEBHOOK_URL_DATA` – channel for data roles (data engineering / analyst / scientist).
    - `DISCORD_WEBHOOK_URL` – optional fallback/general channel (used if a category-specific webhook isn’t provided).
    In GitHub, add the same values as repository secrets so the workflow can post.
+   > Tip: `config/webhooks.yaml` contains hard-coded fallbacks for local testing; environment variables always take precedence.
 4. **Test locally**
    ```bash
    export DISCORD_WEBHOOK_URL=...
