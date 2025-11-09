@@ -19,6 +19,8 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run scraper
         env:
+          DISCORD_WEBHOOK_URL_SOFTWARE: ${{ secrets.DISCORD_WEBHOOK_URL_SOFTWARE }}
+          DISCORD_WEBHOOK_URL_DATA: ${{ secrets.DISCORD_WEBHOOK_URL_DATA }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python -m jobbot.main --config config/sources.yaml --store data/sent_jobs.json
       - name: Commit dedupe updates
