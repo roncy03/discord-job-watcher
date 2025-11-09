@@ -17,7 +17,11 @@ class DedupeStore:
             self.path.parent.mkdir(parents=True, exist_ok=True)
             self._persist()
             return
-        data = json.loads(self.path.read_text())
+        try:
+            data = json.loads(self.path.read_text())
+        except json.JSONDecodeError:
+            data = {"schema": self.schema, "jobs": {}}
+            self.path.write_text(json.dumps(data, indent=2, sort_keys=True))
         if data.get("schema") != self.schema:
             raise RuntimeError("Unsupported store schema")
         self.entries = data.get("jobs", {})
