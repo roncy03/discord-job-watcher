@@ -32,10 +32,27 @@ def _clean(url: str | None) -> str | None:
     return stripped or None
 
 
-def load_settings(config_path: Path) -> Settings:
+def load_webhook_defaults(path: Path) -> dict[str, Optional[str]]:
+    if not path.exists():
+        return {}
+    data = yaml.safe_load(path.read_text()) or {}
+    return {
+        "general": _clean(data.get("general")),
+        "software": _clean(data.get("software")),
+        "data": _clean(data.get("data")),
+    }
+
+
+def load_settings(config_path: Path, webhook_config: Path | None = None) -> Settings:
     webhook = _clean(os.getenv("DISCORD_WEBHOOK_URL"))
     webhook_software = _clean(os.getenv("DISCORD_WEBHOOK_URL_SOFTWARE"))
     webhook_data = _clean(os.getenv("DISCORD_WEBHOOK_URL_DATA"))
+    if webhook_config is None:
+        webhook_config = Path("config/webhooks.yaml")
+    defaults = load_webhook_defaults(webhook_config)
+    webhook = webhook or defaults.get("general")
+    webhook_software = webhook_software or defaults.get("software")
+    webhook_data = webhook_data or defaults.get("data")
     if not any([webhook, webhook_software, webhook_data]):
         raise RuntimeError(
             "At least one webhook env var must be set: "

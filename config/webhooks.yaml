@@ -1,0 +1,4 @@
+# Hardcoded Discord webhook fallbacks (used only if environment variables are unset).
+software: https://discord.com/api/webhooks/1436863124224610486/1xjcK63tuGYUnWbItdgb64Irbh5LX402DxQrZcXUBgKlyGYnUgm0PVkFPqikFV3SOTQk
+data: https://discord.com/api/webhooks/1436863236182905004/XkgvRXNxwQSPKRzmWqP-tGuNetwUFANajcLGQ3WhWw4xmOeKZBuo6bYAXbQu4YHqQ_tB
+general: 
