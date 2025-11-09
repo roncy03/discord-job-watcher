@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import yaml
 from pydantic import BaseModel, Field, HttpUrl, ValidationError
@@ -14,6 +14,8 @@ class WorkdaySource(BaseModel):
     host: str
     limit: int = Field(default=50, ge=1, le=200)
     search_text: str = ""
+    locale: str = "en-US"
+    applied_facets: Dict[str, List[str]] = Field(default_factory=dict)
 
 
 class SourceConfig(BaseModel):

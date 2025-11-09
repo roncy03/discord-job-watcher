@@ -9,21 +9,33 @@ import httpx
 from jobbot.config import WorkdaySource
 from jobbot.models import JobPosting
 
-
 POSTED_REGEX = re.compile(r"posted\s+(\d+)\s+day", re.IGNORECASE)
+CSRF_REGEX = re.compile(r'"csrfToken":"([^"]+)"')
 
 
 def fetch_jobs(config: WorkdaySource) -> List[JobPosting]:
-    url = f"https://{config.host}/wday/cxs/{config.tenant}/{config.site}/jobs"
-    payload = {
-        "appliedFacets": {},
-        "limit": config.limit,
-        "offset": 0,
-        "searchText": config.search_text or "",
-    }
-    with httpx.Client(timeout=20, headers={"User-Agent": "job-discord-bot/1.0"}) as client:
-        response = client.post(url, json=payload)
-        response.raise_for_status()
+    client_headers = {"User-Agent": "job-discord-bot/1.1"}
+    with httpx.Client(timeout=20, headers=client_headers) as client:
+        token = _bootstrap_session(client, config)
+        payload = {
+            "appliedFacets": config.applied_facets or {},
+            "limit": config.limit,
+            "offset": 0,
+            "searchText": config.search_text or "",
+        }
+        headers = {}
+        if token:
+            headers["wd-csrf-token"] = token
+        try:
+            response = client.post(
+                f"https://{config.host}/wday/cxs/{config.tenant}/{config.site}/jobs",
+                json=payload,
+                headers=headers,
+            )
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            print(f"[workday] Failed to fetch {config.tenant}: {exc}")
+            return []
         data = response.json()
 
     jobs: List[JobPosting] = []
@@ -47,6 +59,21 @@ def fetch_jobs(config: WorkdaySource) -> List[JobPosting]:
             )
         )
     return jobs
+
+
+def _bootstrap_session(client: httpx.Client, config: WorkdaySource) -> str | None:
+    bootstrap_url = f"https://{config.host}/{config.locale}/{config.site}"
+    try:
+        resp = client.get(bootstrap_url)
+        resp.raise_for_status()
+    except httpx.HTTPError as exc:
+        print(f"[workday] Bootstrap failed for {config.tenant}: {exc}")
+        return None
+    match = CSRF_REGEX.search(resp.text)
+    if match:
+        return match.group(1)
+    cookie_token = resp.cookies.get("wd-csrf-token")
+    return cookie_token
 
 
 def _parse_posted_on(value: str | None) -> datetime | None:
