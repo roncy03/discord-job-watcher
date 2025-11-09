@@ -1,0 +1,34 @@
+name: Discord Job Alerts
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run scraper
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python -m jobbot.main --config config/sources.yaml --store data/sent_jobs.json
+      - name: Commit dedupe updates
+        run: |
+          if [[ -n "$(git status --porcelain data/sent_jobs.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/sent_jobs.json
+            git commit -m "chore: update sent job ledger [skip ci]"
+            git push
+          else
+            echo "No dedupe changes to commit"
+          fi

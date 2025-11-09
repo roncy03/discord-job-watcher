@@ -1,0 +1,9 @@
+# List of ATS handles to poll per provider
+# Add/remove handles as needed; blanks are ignored.
+greenhouse:
+  - stripe
+  - datadog
+  - figma
+  - doordashusa
+lever:
+  - spotify
